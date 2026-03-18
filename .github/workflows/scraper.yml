@@ -1,0 +1,40 @@
+name: Scraper Precios Semanal
+
+on:
+  schedule:
+    # Corre todos los lunes a las 08:00 AM hora Argentina (UTC-3 = 11:00 UTC)
+    - cron: '0 11 * * 1'
+  workflow_dispatch:
+    # También permite corrida manual desde GitHub con un click
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120  # máximo 2 horas
+
+    steps:
+      - name: Checkout repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependencias
+        run: |
+          pip install requests gspread google-auth
+
+      - name: Ejecutar scraper
+        env:
+          GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
+        run: |
+          python scraper.py
+
+      - name: Subir log si hay error
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scraper-log
+          path: '*.log'
+          retention-days: 7
