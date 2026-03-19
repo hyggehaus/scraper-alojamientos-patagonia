@@ -338,11 +338,7 @@ def to_row(r):
 
 
 def write_to_sheets(results, gc):
-    try:
-        sh = gc.open(SPREADSHEET_NAME)
-    except gspread.SpreadsheetNotFound:
-        sh = gc.create(SPREADSHEET_NAME)
-        sh.share(None, perm_type="anyone", role="reader")
+    sh = gc.open(SPREADSHEET_NAME)
 
     rows = [to_row(r) for r in results]
 
